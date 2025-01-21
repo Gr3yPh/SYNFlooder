@@ -40,7 +40,7 @@ def start_syn_attack():
     speed = int(speed_entry.get())
 
     if not dip or not lip:
-        messagebox.showwarning("输入警告", "目标 IP 和本机 IP 均为必填项")
+        messagebox.showwarning("输入警告", "目标 IP 和数据包源 IP 均为必填项")
         return
 
     attack_running = True
@@ -126,7 +126,7 @@ tk.Label(root, text="目标服务器 IP:", font=label_font, fg=label_fg, bg=labe
 target_ip_entry = tk.Entry(root)
 target_ip_entry.grid(row=0, column=1, sticky="w")
 
-tk.Label(root, text="本机 IP:", font=label_font, fg=label_fg, bg=label_bg, anchor="w").grid(row=1, column=0, sticky="w")
+tk.Label(root, text="数据包源 IP:", font=label_font, fg=label_fg, bg=label_bg, anchor="w").grid(row=1, column=0, sticky="w")
 local_ip_entry = tk.Entry(root)
 local_ip_entry.grid(row=1, column=1, sticky="w")
 
@@ -161,7 +161,7 @@ project_link = tk.Label(root, text="http://github.com/Gr3yPh/SYNFlooder", font=l
 project_link.grid(row=7, columnspan=2, sticky="w")
 project_link.bind("<Button-1>", open_project_link)
 
-author_name = tk.Label(root, text="记住，我叫GR3YPH_4NTOM", font=label_font, fg=label_fg, bg=label_bg, anchor="w")
+author_name = tk.Label(root, text="作者：GR3YPH_4NTOM | 版本：v1.0", font=label_font, fg=label_fg, bg=label_bg, anchor="w")
 author_name.grid(row=8, columnspan=2, sticky="w")
 
 root.mainloop()
