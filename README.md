@@ -23,7 +23,7 @@ SYNFlooder 是一个用于模拟 SYN Flood 和 UDP Flood 攻击的工具。它�
     请确保你已经安装了 Python 3 以及相关的依赖包。你可以使用以下命令来安装依赖：
 
     ```sh
-    pip install -r requirements.txt
+    pip install impacket
     ```
 
 3. 运行工具：
